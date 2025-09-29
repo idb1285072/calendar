@@ -7,6 +7,7 @@ import {
   SimpleChanges,
 } from '@angular/core';
 import { ActivityInterface } from '../types/activity.interface';
+import { ActivityStatusEnum } from '../types/enums/activity-status.enum';
 
 interface DayCell {
   date: Date;
@@ -24,14 +25,11 @@ export class DateCellComponent implements OnChanges {
   @Input() day!: DayCell;
   @Output() clicked = new EventEmitter<Date>();
 
-  // control for showing hidden list (per cell)
   showMore = false;
-
-  // helper to iterate fixed number of lines in template
   lineIndices = Array.from({ length: 5 }, (_, i) => i); // [0,1,2,3,4]
+  ActivityStatusEnum = ActivityStatusEnum;
 
   ngOnChanges(changes: SimpleChanges) {
-    // Reset the expanded state when day changes
     if (changes['day']) {
       this.showMore = false;
     }

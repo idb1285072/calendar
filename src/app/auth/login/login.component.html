@@ -1,6 +1,9 @@
-<div class="container d-flex justify-content-center align-items-center vh-100">
+<div
+  class="container d-flex justify-content-center align-items-center vh-100"
+  style="max-height: calc(100vh - 56px)"
+>
   <div class="card shadow-lg p-4" style="max-width: 400px; width: 100%">
-    <h3 class="text-center mb-4">Login</h3>
+    <h3 class="text-center mb-4">{{ isLoginMode ? "Login" : "Signup" }}</h3>
 
     <form (ngSubmit)="onSubmit()" #loginForm="ngForm">
       <div class="mb-3">
@@ -12,7 +15,14 @@
           name="username"
           required
           [(ngModel)]="username"
+          #usernameRef="ngModel"
         />
+        <span
+          class="text-danger"
+          style="font-size: x-small"
+          *ngIf="usernameRef.touched && usernameRef.invalid"
+          >Username is required.</span
+        >
       </div>
 
       <div class="mb-3">
@@ -24,13 +34,31 @@
           name="password"
           required
           [(ngModel)]="password"
+          #passwordRef="ngModel"
         />
+        <span
+          class="text-danger"
+          style="font-size: x-small"
+          *ngIf="passwordRef.touched && passwordRef.invalid"
+          >Password is required.</span
+        >
       </div>
 
-      <button type="submit" class="btn btn-primary w-100">Login</button>
+      <button
+        type="submit"
+        class="btn btn-primary w-100"
+        [disabled]="loginForm.invalid"
+      >
+        {{ isLoginMode ? "Login" : "Signup" }}
+      </button>
 
       <div *ngIf="errorMessage" class="alert alert-danger mt-3">
         {{ errorMessage }}
+      </div>
+      <div class="text-center mt-3">
+        <button type="button" class="btn btn-link p-0" (click)="toggleMode()">
+          {{ isLoginMode ? "Create an account" : "Already have an account?" }}
+        </button>
       </div>
     </form>
   </div>

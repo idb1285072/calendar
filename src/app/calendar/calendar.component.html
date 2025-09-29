@@ -1,53 +1,4 @@
-<!-- <div class="card">
-  <div class="card-body">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-      <div>
-        <button
-          class="btn btn-sm btn-outline-primary me-2"
-          (click)="prevMonth()"
-        >
-          &lt;
-        </button>
-        <button class="btn btn-sm btn-outline-primary" (click)="nextMonth()">
-          &gt;
-        </button>
-      </div>
-
-      <h5 class="mb-0">{{ getDate | date : "MMMM yyyy" }}</h5>
-
-      <div>
-        <button class="btn btn-sm btn-outline-secondary" (click)="goToday()">
-          Today
-        </button>
-      </div>
-    </div>
-
-    <table class="table table-bordered calendar-table">
-      <thead>
-        <tr class="text-center">
-          <th
-            *ngFor="let d of ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']"
-          >
-            {{ d }}
-          </th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let week of weeks">
-          <td *ngFor="let day of week" class="p-1 align-top">
-            <app-date-cell
-              [day]="day"
-              (clicked)="onDateClick(day.date)"
-            ></app-date-cell>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-</div> -->
-<!-- 
 <div class="calendar-wrapper shadow-sm rounded-3 bg-white p-3">
-
   <div class="d-flex justify-content-between align-items-center mb-4">
     <div class="d-flex gap-2">
       <button
@@ -71,58 +22,7 @@
     </button>
   </div>
 
-
   <div class="calendar-grid">
-
-    <div class="calendar-row fw-semibold text-muted">
-      <div
-        *ngFor="let d of ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']"
-        class="calendar-cell text-center"
-      >
-        {{ d }}
-      </div>
-    </div>
-
-
-    <div class="calendar-row" *ngFor="let week of weeks">
-      <div *ngFor="let day of week" class="calendar-cell p-1">
-        <app-date-cell
-          [day]="day"
-          (clicked)="onDateClick(day.date)"
-        ></app-date-cell>
-      </div>
-    </div>
-  </div>
-</div> -->
-
-<div class="calendar-wrapper shadow-sm rounded-3 bg-white p-3">
-  <!-- Header -->
-  <div class="d-flex justify-content-between align-items-center mb-4">
-    <div class="d-flex gap-2">
-      <button
-        class="btn btn-light rounded-circle shadow-sm"
-        (click)="prevMonth()"
-      >
-        <i class="bi bi-chevron-left"></i>
-      </button>
-      <button
-        class="btn btn-light rounded-circle shadow-sm"
-        (click)="nextMonth()"
-      >
-        <i class="bi bi-chevron-right"></i>
-      </button>
-    </div>
-
-    <h4 class="fw-bold mb-0">{{ getDate | date : "MMMM yyyy" }}</h4>
-
-    <button class="btn btn-outline-primary px-4" (click)="goToday()">
-      Today
-    </button>
-  </div>
-
-  <!-- Calendar Grid -->
-  <div class="calendar-grid">
-    <!-- Weekdays -->
     <div
       class="weekday"
       *ngFor="let d of ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']"
@@ -130,7 +30,6 @@
       {{ d }}
     </div>
 
-    <!-- Days -->
     <ng-container *ngFor="let week of weeks">
       <ng-container *ngFor="let day of week">
         <div class="day-cell">

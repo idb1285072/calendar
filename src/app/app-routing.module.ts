@@ -6,8 +6,8 @@ import { LoginComponent } from './auth/login/login.component';
 import { AuthGuard } from './auth/auth.guard';
 
 const routes: Routes = [
-  { path: '', component: CalendarComponent },
-  { path: 'auth', component: CalendarComponent },
+  { path: '', redirectTo: 'calendar', pathMatch: 'full' },
+  { path: 'calendar', component: CalendarComponent },
   { path: 'users', component: CalendarComponent },
   {
     path: 'add-activity',
@@ -15,6 +15,7 @@ const routes: Routes = [
     canActivate: [AuthGuard],
   },
   { path: 'login', component: LoginComponent },
+  { path: 'signup', component: LoginComponent },
 ];
 
 @NgModule({
