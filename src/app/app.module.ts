@@ -5,11 +5,21 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { HeaderComponent } from './shared/header/header.component';
 import { CalendarComponent } from './calendar/calendar.component';
-
+import { DateCellComponent } from './calendar/date-cell/date-cell.component';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { AddActivityComponent } from './calendar/add-activity/add-activity.component';
+import { LoginComponent } from './auth/login/login.component';
 
 @NgModule({
-  declarations: [AppComponent, HeaderComponent, CalendarComponent],
-  imports: [BrowserModule, AppRoutingModule],
+  declarations: [
+    AppComponent,
+    HeaderComponent,
+    CalendarComponent,
+    DateCellComponent,
+    AddActivityComponent,
+    LoginComponent,
+  ],
+  imports: [BrowserModule, AppRoutingModule, ReactiveFormsModule, FormsModule],
   providers: [],
   bootstrap: [AppComponent],
 })

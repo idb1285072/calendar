@@ -1,0 +1,123 @@
+<div class="date-cell p-1 h-100" [class.text-muted]="!day.inMonth">
+  <div class="d-flex justify-content-between align-items-start mb-1">
+    <small class="fw-bold" (click)="onClickDateArea()">{{
+      day.date.getDate()
+    }}</small>
+    <small *ngIf="isToday()" class="badge bg-primary">Today</small>
+  </div>
+
+  <div class="day-lines">
+    <ng-container *ngFor="let li of lineIndices">
+      <div class="line-slot">
+        <ng-container *ngIf="day.lines[li]; else emptySlot">
+          <div class="activity-line" title="{{ day.lines[li]?.title }}">
+            <span class="event-dot me-1"></span>
+            <span class="activity-title text-truncate">{{
+              day.lines[li]?.title
+            }}</span>
+          </div>
+        </ng-container>
+        <ng-template #emptySlot>
+          <div class="activity-line placeholder"></div>
+        </ng-template>
+      </div>
+    </ng-container>
+
+    <div *ngIf="day.hidden && day.hidden.length > 0" class="mt-1">
+      <button class="btn btn-link p-0 small" (click)="showMore = !showMore">
+        +{{ day.hidden.length }} more
+      </button>
+
+      <div *ngIf="showMore" class="hidden-list mt-1">
+        <div *ngFor="let h of day.hidden" class="activity-line small">
+          <span class="event-dot me-1"></span>
+          {{ h.title }}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 
+<div
+  class="date-cell p-2 h-100 rounded position-relative"
+  [class.text-muted]="!day.inMonth"
+>
+  <div class="d-flex justify-content-between align-items-start mb-2">
+    <small class="fw-bold cursor-pointer" (click)="onClickDateArea()">
+      {{ day.date.getDate() }}
+    </small>
+    <span *ngIf="isToday()" class="badge bg-gradient bg-primary">Today</span>
+  </div>
+
+  <div class="day-lines">
+    <ng-container *ngFor="let li of lineIndices">
+      <ng-container *ngIf="day.lines[li]; else emptySlot">
+        <div
+          class="activity-pill mb-1 text-truncate"
+          title="{{ day.lines[li]?.title }}"
+        >
+          <span class="event-dot me-1"></span>
+          {{ day.lines[li]?.title }}
+        </div>
+      </ng-container>
+      <ng-template #emptySlot></ng-template>
+    </ng-container>
+
+    <div *ngIf="day.hidden.length > 0" class="mt-1">
+      <button
+        class="btn btn-sm btn-outline-secondary w-100"
+        (click)="showMore = !showMore"
+      >
+        +{{ day.hidden.length }} more
+      </button>
+
+      <div *ngIf="showMore" class="hidden-list mt-2">
+        <div *ngFor="let h of day.hidden" class="activity-pill small">
+          <span class="event-dot me-1"></span>
+          {{ h.title }}
+        </div>
+      </div>
+    </div>
+  </div>
+</div> -->
+<!-- 
+<div class="date-cell h-100 d-flex flex-column">
+  <div class="d-flex justify-content-between align-items-start mb-1">
+    <small class="fw-bold cursor-pointer" (click)="onClickDateArea()">
+      {{ day.date.getDate() }}
+    </small>
+    <span *ngIf="isToday()" class="badge bg-primary">Today</span>
+  </div>
+
+  <div class="flex-grow-1 overflow-hidden">
+    <ng-container *ngFor="let li of lineIndices">
+      <ng-container *ngIf="day.lines[li]; else emptySlot">
+        <div
+          class="activity-pill text-truncate mb-1"
+          title="{{ day.lines[li]?.title }}"
+        >
+          <span class="event-dot me-1"></span>
+          {{ day.lines[li]?.title }}
+        </div>
+      </ng-container>
+      <ng-template #emptySlot></ng-template>
+    </ng-container>
+
+    <div *ngIf="day.hidden.length > 0" class="mt-1">
+      <button
+        class="btn btn-sm btn-outline-secondary w-100"
+        (click)="showMore = !showMore"
+      >
+        +{{ day.hidden.length }} more
+      </button>
+
+      <div *ngIf="showMore" class="hidden-list mt-2">
+        <div *ngFor="let h of day.hidden" class="activity-pill small">
+          <span class="event-dot me-1"></span>
+          {{ h.title }}
+        </div>
+      </div>
+    </div>
+  </div>
+</div> -->
