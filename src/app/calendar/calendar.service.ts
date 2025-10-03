@@ -9,9 +9,7 @@ export class CalendarService {
   private storageKey = 'saved-activities';
 
   constructor() {
-    if (!window.localStorage.getItem(this.storageKey)) {
-      this.saveActivityIntoLocalStorage(ACTIVITY_LIST || []);
-    }
+    this.initActivity();
   }
 
   getActivities(): ActivityInterface[] {
@@ -24,14 +22,14 @@ export class CalendarService {
     }
   }
 
-  getActivityById(id: string): ActivityInterface | undefined {
-    return this.getActivities().find((a) => a.id === id);
-  }
-
   addActivity(activity: ActivityInterface): void {
     const list = this.getActivities();
     list.push(activity);
     this.saveActivityIntoLocalStorage(list);
+  }
+
+  getActivityById(id: string): ActivityInterface | undefined {
+    return this.getActivities().find((a) => a.id === id);
   }
 
   updateActivity(updated: ActivityInterface): void {
@@ -48,5 +46,11 @@ export class CalendarService {
 
   private saveActivityIntoLocalStorage(list: ActivityInterface[]) {
     window.localStorage.setItem(this.storageKey, JSON.stringify(list));
+  }
+
+  private initActivity() {
+    if (!window.localStorage.getItem(this.storageKey)) {
+      this.saveActivityIntoLocalStorage(ACTIVITY_LIST || []);
+    }
   }
 }

@@ -1,6 +1,5 @@
 import { AbstractControl, ValidationErrors } from '@angular/forms';
 
-// FormGroup-level validator
 export function endDateAfterStartDate(
   control: AbstractControl
 ): ValidationErrors | null {

@@ -26,7 +26,7 @@ export class DateCellComponent implements OnChanges {
   @Output() clicked = new EventEmitter<Date>();
 
   showMore = false;
-  lineIndices = Array.from({ length: 5 }, (_, i) => i); // [0,1,2,3,4]
+  lineIndices = Array.from({ length: 5 }, (_, i) => i);
   ActivityStatusEnum = ActivityStatusEnum;
 
   ngOnChanges(changes: SimpleChanges) {

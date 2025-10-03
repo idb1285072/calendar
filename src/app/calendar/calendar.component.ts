@@ -1,24 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivityInterface } from './types/activity.interface';
 import { CalendarService } from './calendar.service';
-
+import { DayCellInterface } from './types/day-cell.interface';
+import { PlacedActivityInterface } from './types/placed-activity.interface';
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 const MAX_LINES = 5;
-
-interface DayCell {
-  date: Date;
-  inMonth: boolean;
-  lines: (ActivityInterface | null)[];
-  hidden: ActivityInterface[];
-}
-
-interface PlacedActivity {
-  activity: ActivityInterface;
-  startIndex: number;
-  endIndex: number;
-  viewLine: number;
-}
 
 @Component({
   selector: 'app-calendar',
@@ -30,12 +17,39 @@ export class CalendarComponent implements OnInit {
   month = this.today.getMonth();
   year = this.today.getFullYear();
 
-  weeks: DayCell[][] = []; 
+  weeks: DayCellInterface[][] = [];
 
   constructor(private calendarService: CalendarService) {}
 
   ngOnInit(): void {
     this.buildCalendar(this.year, this.month);
+  }
+
+  prevMonth() {
+    if (this.month === 0) {
+      this.month = 11;
+      this.year--;
+    } else this.month--;
+    this.buildCalendar(this.year, this.month);
+  }
+
+  nextMonth() {
+    if (this.month === 11) {
+      this.month = 0;
+      this.year++;
+    } else this.month++;
+    this.buildCalendar(this.year, this.month);
+  }
+
+  goToday() {
+    this.today = new Date();
+    this.month = this.today.getMonth();
+    this.year = this.today.getFullYear();
+    this.buildCalendar(this.year, this.month);
+  }
+
+  onDateClick(date: Date) {
+    console.log('date clicked', date);
   }
 
   private toDateOnly(d: Date) {
@@ -54,7 +68,7 @@ export class CalendarComponent implements OnInit {
     return Math.floor((utcB - utcA) / DAY_MS);
   }
 
-  buildCalendar(year: number, month: number) {
+  private buildCalendar(year: number, month: number) {
     const firstOfMonth = new Date(year, month, 1);
     const startWeekday = firstOfMonth.getDay();
     const daysInMonth = new Date(year, month + 1, 0).getDate();
@@ -75,7 +89,7 @@ export class CalendarComponent implements OnInit {
       days.push(new Date(year, month + 1, nextDay++));
     }
 
-    const dayCells: DayCell[] = days.map((d) => ({
+    const dayCells: DayCellInterface[] = days.map((d) => ({
       date: d,
       inMonth: d.getMonth() === month,
       lines: Array.from({ length: MAX_LINES }, () => null),
@@ -84,7 +98,7 @@ export class CalendarComponent implements OnInit {
 
     const allActivities = this.calendarService.getActivities();
 
-    const gridStart = this.toDateOnly(dayCells[0].date); 
+    const gridStart = this.toDateOnly(dayCells[0].date);
 
     const eventsInGrid: {
       activity: ActivityInterface;
@@ -117,8 +131,8 @@ export class CalendarComponent implements OnInit {
       return lenY - lenX;
     });
 
-    const lines: PlacedActivity[][] = []; 
-    const overflow: PlacedActivity[] = [];
+    const lines: PlacedActivityInterface[][] = [];
+    const overflow: PlacedActivityInterface[] = [];
 
     for (const ev of eventsInGrid) {
       let placed = false;
@@ -127,7 +141,7 @@ export class CalendarComponent implements OnInit {
           (p) => !(ev.endIndex < p.startIndex || ev.startIndex > p.endIndex)
         );
         if (!collision) {
-          const placedItem: PlacedActivity = {
+          const placedItem: PlacedActivityInterface = {
             activity: ev.activity,
             startIndex: ev.startIndex,
             endIndex: ev.endIndex,
@@ -142,7 +156,7 @@ export class CalendarComponent implements OnInit {
       if (!placed) {
         if (lines.length < MAX_LINES) {
           const newLineIndex = lines.length;
-          const placedItem: PlacedActivity = {
+          const placedItem: PlacedActivityInterface = {
             activity: ev.activity,
             startIndex: ev.startIndex,
             endIndex: ev.endIndex,
@@ -150,7 +164,7 @@ export class CalendarComponent implements OnInit {
           };
           lines.push([placedItem]);
         } else {
-          const placedItem: PlacedActivity = {
+          const placedItem: PlacedActivityInterface = {
             activity: ev.activity,
             startIndex: ev.startIndex,
             endIndex: ev.endIndex,
@@ -181,33 +195,7 @@ export class CalendarComponent implements OnInit {
     }
   }
 
-  prevMonth() {
-    if (this.month === 0) {
-      this.month = 11;
-      this.year--;
-    } else this.month--;
-    this.buildCalendar(this.year, this.month);
-  }
-
-  nextMonth() {
-    if (this.month === 11) {
-      this.month = 0;
-      this.year++;
-    } else this.month++;
-    this.buildCalendar(this.year, this.month);
-  }
-
-  goToday() {
-    this.today = new Date();
-    this.month = this.today.getMonth();
-    this.year = this.today.getFullYear();
-    this.buildCalendar(this.year, this.month);
-  }
-
-  onDateClick(date: Date) {
-    console.log('date clicked', date);
-  }
-  get getDate(){
+  get getDate() {
     return new Date(this.year, this.month, 1);
   }
 }

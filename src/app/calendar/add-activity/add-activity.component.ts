@@ -34,12 +34,12 @@ export class AddActivityComponent implements OnInit {
   ngOnInit(): void {
     this.initActivityForm();
   }
+
   onSubmit() {
     if (this.activityForm.invalid) return;
 
     const formValue = this.activityForm.value;
 
-    // create ActivityInterface object
     const newActivity: ActivityInterface = {
       id: Date.now().toString(),
       title: formValue.title as string,
@@ -50,7 +50,6 @@ export class AddActivityComponent implements OnInit {
 
     this.calendarService.addActivity(newActivity);
 
-    // Reset form (keep default status)
     this.activityForm.reset({
       title: '',
       startDate: '',

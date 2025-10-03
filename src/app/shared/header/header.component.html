@@ -19,7 +19,9 @@
         <a class="nav-link" (click)="onLogout()">Logout</a>
       </li>
       <li class="nav-item ms-3" *ngIf="isAuthenticated">
-        <span class="badge text-bg-info navbar-text fw-semibold">👋 {{ username }}</span>
+        <span class="badge text-bg-info navbar-text fw-semibold">{{
+          username
+        }}</span>
       </li>
     </ul>
   </div>
