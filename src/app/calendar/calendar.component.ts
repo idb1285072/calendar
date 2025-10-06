@@ -25,7 +25,7 @@ export class CalendarComponent implements OnInit {
     this.buildCalendar(this.year, this.month);
   }
 
-  prevMonth() {
+  onPrevMonth() {
     if (this.month === 0) {
       this.month = 11;
       this.year--;
@@ -33,7 +33,7 @@ export class CalendarComponent implements OnInit {
     this.buildCalendar(this.year, this.month);
   }
 
-  nextMonth() {
+  onNextMonth() {
     if (this.month === 11) {
       this.month = 0;
       this.year++;
@@ -41,15 +41,11 @@ export class CalendarComponent implements OnInit {
     this.buildCalendar(this.year, this.month);
   }
 
-  goToday() {
+  onGoToday() {
     this.today = new Date();
     this.month = this.today.getMonth();
     this.year = this.today.getFullYear();
     this.buildCalendar(this.year, this.month);
-  }
-
-  onDateClick(date: Date) {
-    console.log('date clicked', date);
   }
 
   private toDateOnly(d: Date) {
@@ -69,6 +65,14 @@ export class CalendarComponent implements OnInit {
   }
 
   private buildCalendar(year: number, month: number) {
+    const dayCells = this.createDayCells(year, month);
+    const eventsInGrid = this.mapActivitiesToGrid(dayCells);
+    const { lines, overflow } = this.placeActivities(eventsInGrid);
+    this.fillDayCellsWithActivities(dayCells, lines, overflow);
+    this.weeks = this.splitIntoWeeks(dayCells);
+  }
+
+  private createDayCells(year: number, month: number): DayCellInterface[] {
     const firstOfMonth = new Date(year, month, 1);
     const startWeekday = firstOfMonth.getDay();
     const daysInMonth = new Date(year, month + 1, 0).getDate();
@@ -89,51 +93,47 @@ export class CalendarComponent implements OnInit {
       days.push(new Date(year, month + 1, nextDay++));
     }
 
-    const dayCells: DayCellInterface[] = days.map((d) => ({
+    return days.map((d) => ({
       date: d,
       inMonth: d.getMonth() === month,
       lines: Array.from({ length: MAX_LINES }, () => null),
       hidden: [],
     }));
+  }
 
+  private mapActivitiesToGrid(dayCells: DayCellInterface[]) {
     const allActivities = this.calendarService.getActivities();
-
     const gridStart = this.toDateOnly(dayCells[0].date);
 
-    const eventsInGrid: {
+    const eventsInGrid = allActivities
+      .map((act) => {
+        const startIndex = this.dateDiffInDays(
+          gridStart,
+          this.isoToDateOnly(act.startDate)
+        );
+        const endIndex = this.dateDiffInDays(
+          gridStart,
+          this.isoToDateOnly(act.endDate)
+        );
+        return { activity: act, startIndex, endIndex };
+      })
+      .filter((ev) => ev.endIndex >= 0 && ev.startIndex <= 41);
+
+    return eventsInGrid.sort((x, y) => {
+      if (x.startIndex !== y.startIndex) return x.startIndex - y.startIndex;
+      return y.endIndex - y.startIndex - (x.endIndex - x.startIndex);
+    });
+  }
+
+  private placeActivities(
+    eventsInGrid: {
       activity: ActivityInterface;
       startIndex: number;
       endIndex: number;
-    }[] = [];
-
-    for (const act of allActivities) {
-      const aStart = this.isoToDateOnly(act.startDate);
-      const aEnd = this.isoToDateOnly(act.endDate);
-
-      const startIndex = this.dateDiffInDays(gridStart, aStart);
-      const endIndex = this.dateDiffInDays(gridStart, aEnd);
-
-      if (endIndex >= 0 && startIndex <= 41) {
-        const clampedStart = Math.max(0, startIndex);
-        const clampedEnd = Math.min(41, endIndex);
-        eventsInGrid.push({
-          activity: act,
-          startIndex: clampedStart,
-          endIndex: clampedEnd,
-        });
-      }
-    }
-
-    eventsInGrid.sort((x, y) => {
-      if (x.startIndex !== y.startIndex) return x.startIndex - y.startIndex;
-      const lenX = x.endIndex - x.startIndex;
-      const lenY = y.endIndex - y.startIndex;
-      return lenY - lenX;
-    });
-
+    }[]
+  ) {
     const lines: PlacedActivityInterface[][] = [];
     const overflow: PlacedActivityInterface[] = [];
-
     for (const ev of eventsInGrid) {
       let placed = false;
       for (let li = 0; li < lines.length; li++) {
@@ -141,58 +141,56 @@ export class CalendarComponent implements OnInit {
           (p) => !(ev.endIndex < p.startIndex || ev.startIndex > p.endIndex)
         );
         if (!collision) {
-          const placedItem: PlacedActivityInterface = {
-            activity: ev.activity,
-            startIndex: ev.startIndex,
-            endIndex: ev.endIndex,
-            viewLine: li,
-          };
-          lines[li].push(placedItem);
+          lines[li].push({ ...ev, viewLine: li });
           placed = true;
           break;
         }
       }
-
       if (!placed) {
         if (lines.length < MAX_LINES) {
           const newLineIndex = lines.length;
-          const placedItem: PlacedActivityInterface = {
-            activity: ev.activity,
-            startIndex: ev.startIndex,
-            endIndex: ev.endIndex,
-            viewLine: newLineIndex,
-          };
-          lines.push([placedItem]);
+          lines.push([{ ...ev, viewLine: newLineIndex }]);
         } else {
-          const placedItem: PlacedActivityInterface = {
-            activity: ev.activity,
-            startIndex: ev.startIndex,
-            endIndex: ev.endIndex,
-            viewLine: -1,
-          };
-          overflow.push(placedItem);
+          overflow.push({ ...ev, viewLine: -1 });
         }
       }
     }
+    return { lines, overflow };
+  }
 
+  private fillDayCellsWithActivities(
+    dayCells: DayCellInterface[],
+    lines: PlacedActivityInterface[][],
+    overflow: PlacedActivityInterface[]
+  ) {
     for (let lineIndex = 0; lineIndex < lines.length; lineIndex++) {
-      for (const placed of lines[lineIndex]) {
-        for (let i = placed.startIndex; i <= placed.endIndex; i++) {
-          dayCells[i].lines[lineIndex] = placed.activity;
+      const line = lines[lineIndex] || [];
+      for (const placed of line) {
+        const start = Math.max(0, placed.startIndex);
+        const end = Math.min(dayCells.length - 1, placed.endIndex);
+        for (let i = start; i <= end; i++) {
+          if (dayCells[i]) dayCells[i].lines[lineIndex] = placed.activity;
         }
       }
     }
 
-    for (const ofa of overflow) {
-      for (let i = ofa.startIndex; i <= ofa.endIndex; i++) {
-        dayCells[i].hidden.push(ofa.activity);
+    for (const overflowActivity of overflow) {
+      for (
+        let i = overflowActivity.startIndex;
+        i <= overflowActivity.endIndex;
+        i++
+      ) {
+        dayCells[i].hidden.push(overflowActivity.activity);
       }
     }
+  }
 
-    this.weeks = [];
+  private splitIntoWeeks(dayCells: DayCellInterface[]): DayCellInterface[][] {
+    const weeks: DayCellInterface[][] = [];
     for (let i = 0; i < dayCells.length; i += 7) {
-      this.weeks.push(dayCells.slice(i, i + 7));
+      weeks.push(dayCells.slice(i, i + 7));
     }
+    return weeks;
   }
 
   get getDate() {

@@ -8,10 +8,9 @@ import { USERS } from '../data/user.data';
   providedIn: 'root',
 })
 export class AuthService {
-  private readonly STORAGE_KEY = 'auth-user';
-  private readonly EXPIRY_KEY = 'auth-expiry';
   private readonly USERS_KEY = 'saved-users';
-  private readonly SESSION_DURATION = 1 * 60 * 1000;
+  private readonly COOKIE_NAME = 'auth-user';
+  private readonly SESSION_DURATION = 30 * 60 * 1000;
 
   private users: UserInterface[] = [];
   private logoutTimer: any;
@@ -23,31 +22,27 @@ export class AuthService {
 
   constructor(private router: Router) {
     const savedUsers = localStorage.getItem(this.USERS_KEY);
-    if (savedUsers) {
-      localStorage.setItem(this.USERS_KEY, JSON.stringify(savedUsers));
-    }
     this.users = savedUsers ? JSON.parse(savedUsers) : USERS;
 
-    window.addEventListener('storage', (event) => {
-      if (event.key === this.STORAGE_KEY && !event.newValue) {
+    setInterval(() => {
+      if (!this.getCookie(this.COOKIE_NAME)) {
         this.authStatus.next(null);
-        if (this.logoutTimer) clearTimeout(this.logoutTimer);
       }
-    });
+    }, 1000);
   }
 
   login(username: string, password: string): boolean {
     const user = this.users.find(
       (u) => u.username === username && u.password === password
     );
-
     if (!user) return false;
 
-    const expiry = Date.now() + this.SESSION_DURATION;
-    localStorage.setItem(this.STORAGE_KEY, JSON.stringify(user));
-    localStorage.setItem(this.EXPIRY_KEY, expiry.toString());
+    this.setCookie(
+      this.COOKIE_NAME,
+      JSON.stringify(user),
+      this.SESSION_DURATION
+    );
     this.authStatus.next(user);
-
     this.startAutoLogout(this.SESSION_DURATION);
     return true;
   }
@@ -63,37 +58,27 @@ export class AuthService {
     };
 
     this.users.push(newUser);
-    this.saveUsers();
+    localStorage.setItem(this.USERS_KEY, JSON.stringify(this.users));
 
     return this.login(username, password);
   }
 
   getCurrentUser(): UserInterface | null {
-    const expiryStr = localStorage.getItem(this.EXPIRY_KEY);
-    const userStr = localStorage.getItem(this.STORAGE_KEY);
-
-    if (!expiryStr || !userStr) return null;
-
-    const expiry = +expiryStr;
-    const remaining = expiry - Date.now();
-
-    if (remaining <= 0) {
-      this.logout();
+    const cookie = this.getCookie(this.COOKIE_NAME);
+    if (!cookie) return null;
+    try {
+      return JSON.parse(cookie);
+    } catch {
       return null;
     }
-
-    this.startAutoLogout(remaining);
-
-    return JSON.parse(userStr);
   }
 
   isLoggedIn(): boolean {
-    return this.getCurrentUser() !== null;
+    return this.getCookie(this.COOKIE_NAME) !== '';
   }
 
   logout(): void {
-    localStorage.removeItem(this.STORAGE_KEY);
-    localStorage.removeItem(this.EXPIRY_KEY);
+    this.deleteCookie(this.COOKIE_NAME);
     this.authStatus.next(null);
 
     if (this.logoutTimer) {
@@ -104,12 +89,26 @@ export class AuthService {
     this.router.navigate(['/login']);
   }
 
-  private saveUsers(): void {
-    localStorage.setItem(this.USERS_KEY, JSON.stringify(this.users));
-  }
-
   private startAutoLogout(duration: number) {
     if (this.logoutTimer) clearTimeout(this.logoutTimer);
     this.logoutTimer = setTimeout(() => this.logout(), duration);
+  }
+
+  private setCookie(name: string, value: string, durationMs: number) {
+    const expiryDate = new Date(Date.now() + durationMs);
+    document.cookie = `${name}=${encodeURIComponent(
+      value
+    )}; expires=${expiryDate.toUTCString()}; path=/; SameSite=Lax`;
+  }
+
+  private getCookie(name: string): string {
+    const match = document.cookie.match(
+      new RegExp('(^| )' + name + '=([^;]+)')
+    );
+    return match ? decodeURIComponent(match[2]) : '';
+  }
+
+  private deleteCookie(name: string) {
+    document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/;`;
   }
 }

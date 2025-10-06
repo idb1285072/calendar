@@ -1,9 +1,8 @@
 import {
   Component,
   Input,
-  Output,
-  EventEmitter,
   OnChanges,
+  OnInit,
   SimpleChanges,
 } from '@angular/core';
 import { ActivityInterface } from '../types/activity.interface';
@@ -21,30 +20,21 @@ interface DayCell {
   templateUrl: './date-cell.component.html',
   styleUrls: ['./date-cell.component.css'],
 })
-export class DateCellComponent implements OnChanges {
+export class DateCellComponent implements OnInit {
   @Input() day!: DayCell;
-  @Output() clicked = new EventEmitter<Date>();
-
+  isToday: boolean = false;
   showMore = false;
-  lineIndices = Array.from({ length: 5 }, (_, i) => i);
   ActivityStatusEnum = ActivityStatusEnum;
 
-  ngOnChanges(changes: SimpleChanges) {
-    if (changes['day']) {
-      this.showMore = false;
-    }
+  ngOnInit(): void {
+    this.initIsToday();
   }
 
-  onClickDateArea() {
-    this.clicked.emit(this.day.date);
-  }
-
-  isToday(): boolean {
+  private initIsToday() {
     const t = new Date();
-    return (
+    this.isToday =
       this.day.date.getFullYear() === t.getFullYear() &&
       this.day.date.getMonth() === t.getMonth() &&
-      this.day.date.getDate() === t.getDate()
-    );
+      this.day.date.getDate() === t.getDate();
   }
 }

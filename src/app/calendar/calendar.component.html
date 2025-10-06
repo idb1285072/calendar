@@ -3,13 +3,13 @@
     <div class="d-flex gap-2">
       <button
         class="btn btn-light rounded-circle shadow-sm"
-        (click)="prevMonth()"
+        (click)="onPrevMonth()"
       >
         <i class="bi bi-chevron-left"></i>
       </button>
       <button
         class="btn btn-light rounded-circle shadow-sm"
-        (click)="nextMonth()"
+        (click)="onNextMonth()"
       >
         <i class="bi bi-chevron-right"></i>
       </button>
@@ -17,7 +17,7 @@
 
     <h4 class="fw-bold mb-0">{{ getDate | date : "MMMM yyyy" }}</h4>
 
-    <button class="btn btn-outline-primary px-4" (click)="goToday()">
+    <button class="btn btn-outline-primary px-4" (click)="onGoToday()">
       Today
     </button>
   </div>
@@ -33,10 +33,7 @@
     <ng-container *ngFor="let week of weeks">
       <ng-container *ngFor="let day of week">
         <div class="day-cell">
-          <app-date-cell
-            [day]="day"
-            (clicked)="onDateClick(day.date)"
-          ></app-date-cell>
+          <app-date-cell [day]="day"></app-date-cell>
         </div>
       </ng-container>
     </ng-container>

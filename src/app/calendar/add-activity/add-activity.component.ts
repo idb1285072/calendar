@@ -43,8 +43,8 @@ export class AddActivityComponent implements OnInit {
     const newActivity: ActivityInterface = {
       id: Date.now().toString(),
       title: formValue.title as string,
-      startDate: new Date(formValue.startDate as string).toISOString(),
-      endDate: new Date(formValue.endDate as string).toISOString(),
+      startDate: formValue.startDate as string,
+      endDate: formValue.endDate as string,
       status: formValue.status as ActivityStatusEnum,
     };
 
