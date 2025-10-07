@@ -1,0 +1,33 @@
+<div
+  class="modal fade show d-block"
+  tabindex="-1"
+  style="background: rgba(0, 0, 0, 0.5)"
+  (click)="onClose()"
+>
+  <div
+    class="modal-dialog modal-dialog-centered"
+    (click)="$event.stopPropagation()"
+  >
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">
+          Activities on {{ date | date : "mediumDate" }}
+        </h5>
+        <button type="button" class="btn-close" (click)="onClose()"></button>
+      </div>
+      <div class="modal-body">
+        <div
+          *ngFor="let activity of activities"
+          class="activity-line small text-white rounded-1 mb-1 p-1"
+          [ngClass]="{
+            'bg-danger': activity.status === ActivityStatusEnum.Pending,
+            'bg-warning': activity.status === ActivityStatusEnum.OnGoing,
+            'bg-success': activity.status === ActivityStatusEnum.Complete
+          }"
+        >
+          {{ activity.title }}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

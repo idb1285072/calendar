@@ -1,9 +1,9 @@
 .date-cell {
-  min-height: 90px; /* slightly smaller height */
+  min-height: 90px;
   cursor: default;
   border-radius: 6px;
   background: #fff;
-  padding: 3px; /* smaller padding */
+  padding: 3px; 
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
@@ -17,13 +17,13 @@
 .day-lines {
   display: flex;
   flex-direction: column;
-  gap: 2px; /* reduce vertical gap between activities */
+  gap: 2px; 
   flex-grow: 1;
   overflow: hidden;
 }
 
 .line-slot {
-  min-height: 16px; /* smaller line height */
+  min-height: 16px; 
 }
 
 .activity-line {
@@ -33,22 +33,31 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  padding: .5rem;
-
+  padding: 0.2rem;
 }
 
 .activity-line.placeholder {
   background: transparent;
   height: 16px;
   pointer-events: none;
-  margin: .5rem;
+  margin: 0.2rem;
+  font-size: 0.7rem;
 }
-
 
 .hidden-list .activity-line {
   background: #f1f3f5;
   color: #495057;
   margin-top: 2px;
   font-size: 0.65rem;
-  padding: .5rem;
+  padding: 0.5rem;
+}
+
+.activity-line.border-start {
+  border-left-width: 6px !important;
+  border-left-style: solid;
+  border-left-color: aqua !important;
+}
+
+.activity-line.border-start .activity-title {
+  padding-left: 4px;
 }

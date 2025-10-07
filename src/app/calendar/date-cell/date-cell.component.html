@@ -15,14 +15,15 @@
               'bg-warning':
                 day.lines[li]?.status === ActivityStatusEnum.OnGoing,
               'bg-success':
-                day.lines[li]?.status === ActivityStatusEnum.Complete
+                day.lines[li]?.status === ActivityStatusEnum.Complete,
+                'border-start':day.lines[li]?.title!=='\u00A0'
             }"
             title="{{ day.lines[li]?.title }}"
           >
-            <span class="activity-title text-truncate">{{
+            <span class="activity-title text-truncate"
+           >{{
               day.lines[li]?.title
             }}</span>
-            
           </div>
         </ng-container>
         <ng-template #emptySlot>
@@ -31,25 +32,17 @@
       </div>
     </ng-container>
 
-    <div *ngIf="day.hidden && day.hidden.length > 0" class="mt-1">
-      <button class="btn btn-link btn-sm p-1" (click)="showMore = !showMore">
+    <div *ngIf="day.hidden && day.hidden.length > 0" class="mt-1 text-center">
+      <button class="btn btn-link btn-sm p-1" (click)="openModal()">
         +{{ day.hidden.length }} more
       </button>
-
-      <div *ngIf="showMore" class="hidden-list mt-1">
-        <div
-          *ngFor="let h of day.hidden"
-          class="activity-line small text-white rounded-1"
-          [ngClass]="{
-            'bg-danger': h.status === ActivityStatusEnum.Pending,
-            'bg-warning': h.status === ActivityStatusEnum.OnGoing,
-            'bg-success': h.status === ActivityStatusEnum.Complete
-          }"
-        >
-          <span class="event-dot me-1"></span>
-          {{ h.title }}
-        </div>
-      </div>
     </div>
   </div>
 </div>
+
+<app-activities-modal
+  *ngIf="showModal"
+  [activities]="day.hidden"
+  [date]="day.date"
+  (close)="closeModal()"
+></app-activities-modal>

@@ -10,11 +10,19 @@ import { DayCellInterface } from '../types/day-cell.interface';
 export class DateCellComponent implements OnInit {
   @Input() day!: DayCellInterface;
   isToday: boolean = false;
-  showMore = false;
+  showModal = false;
   ActivityStatusEnum = ActivityStatusEnum;
 
   ngOnInit(): void {
     this.initIsToday();
+  }
+
+  openModal() {
+    this.showModal = true;
+  }
+
+  closeModal() {
+    this.showModal = false;
   }
 
   private initIsToday() {

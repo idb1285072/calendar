@@ -9,6 +9,7 @@ import { DateCellComponent } from './calendar/date-cell/date-cell.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { AddActivityComponent } from './calendar/add-activity/add-activity.component';
 import { LoginComponent } from './auth/login/login.component';
+import { ActivitiesModalComponent } from './calendar/activities-modal/activities-modal.component';
 
 @NgModule({
   declarations: [
@@ -18,6 +19,7 @@ import { LoginComponent } from './auth/login/login.component';
     DateCellComponent,
     AddActivityComponent,
     LoginComponent,
+    ActivitiesModalComponent,
   ],
   imports: [BrowserModule, AppRoutingModule, ReactiveFormsModule, FormsModule],
   providers: [],

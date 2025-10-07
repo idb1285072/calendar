@@ -5,7 +5,7 @@ import { DayCellInterface } from './types/day-cell.interface';
 import { PlacedActivityInterface } from './types/placed-activity.interface';
 
 const DAY_MS = 24 * 60 * 60 * 1000;
-const MAX_LINES = 5;
+const MAX_LINES = 4;
 
 @Component({
   selector: 'app-calendar',
@@ -133,7 +133,6 @@ export class CalendarComponent implements OnInit {
       endIndex: number;
     }[]
   ) {
-    const MAX_LINES = 5;
 
     return eventsInGrid.reduce(
       (acc, ev) => {
@@ -175,7 +174,11 @@ export class CalendarComponent implements OnInit {
         (_, i) => i + startIndex
       )
         .filter((i) => i >= 0 && i < dayCells.length)
-        .forEach((i) => (dayCells[i].lines[viewLine] = activity));
+        .forEach(
+          (i) =>
+            (dayCells[i].lines[viewLine] =
+              i === startIndex ? activity : { ...activity, title: '\u00A0' })
+        );
     });
 
     overflow.forEach(({ activity, startIndex, endIndex }) => {
