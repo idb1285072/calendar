@@ -32,18 +32,6 @@ export class CalendarService {
     return this.getActivities().find((a) => a.id === id);
   }
 
-  updateActivity(updated: ActivityInterface): void {
-    const list = this.getActivities().map((a) =>
-      a.id === updated.id ? updated : a
-    );
-    this.saveActivityIntoLocalStorage(list);
-  }
-
-  deleteActivity(id: string): void {
-    const list = this.getActivities().filter((a) => a.id !== id);
-    this.saveActivityIntoLocalStorage(list);
-  }
-
   private saveActivityIntoLocalStorage(list: ActivityInterface[]) {
     window.localStorage.setItem(this.storageKey, JSON.stringify(list));
   }

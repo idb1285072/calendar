@@ -1,63 +1,58 @@
 .calendar-wrapper {
   border: 1px solid #e9ecef;
-  /* overflow: hidden; */
   overflow-x: auto;
   width: 100%;
 }
 
-/* Calendar grid: 7 columns for days */
 .calendar-grid {
   display: grid;
   grid-template-columns: repeat(7, minmax(0, 1fr));
-  grid-auto-rows: 30px repeat(6, minmax(90px, auto)); /* day cell height */
+  grid-auto-rows: 30px repeat(6, minmax(90px, auto));
   border-top: 1px solid #f1f3f5;
   border-left: 1px solid #f1f3f5;
-  gap: 0; /* remove extra spacing between rows */
+  gap: 0;
 }
 
-/* Weekday header row */
 .weekday {
   text-align: center;
   font-weight: 600;
   color: #6c757d;
-  padding: 0; /* remove padding to reduce space */
-  height: 30px; /* small fixed height */
+  padding: 0;
+  height: 30px;
   border-right: 1px solid #f1f3f5;
   border-bottom: 1px solid #f1f3f5;
   background: #f8f9fa;
   font-size: 0.75rem;
   display: flex;
-  align-items: center; /* vertically center text */
+  align-items: center;
   justify-content: center;
-  margin: 0; /* remove any margin */
+  margin: 0;
   padding: 0;
 }
 
-/* Day cells */
 .day-cell {
   border-right: 1px solid #f1f3f5;
   border-bottom: 1px solid #f1f3f5;
-  padding: 2px; /* small padding */
+  padding: 2px;
   background: #fff;
   transition: background 0.2s;
-  min-width: 0; /* prevent overflow */
-  margin: 0; /* remove extra spacing */
+  min-width: 0;
+  margin: 0;
 }
 
 .day-cell:hover {
   background: #f8f9fa;
 }
 
-/* Responsive for small screens */
 @media (max-width: 768px) {
   .calendar-grid {
     grid-template-columns: repeat(7, 1fr);
-    grid-auto-rows: minmax(70px, auto); /* smaller day cell height */
+    grid-auto-rows: minmax(70px, auto);
   }
 
   .weekday {
     font-size: 0.7rem;
-    padding: 0; /* reduce padding */
-    height: 28px; /* smaller height on mobile */
+    padding: 0;
+    height: 28px;
   }
 }

@@ -1,19 +1,6 @@
-import {
-  Component,
-  Input,
-  OnChanges,
-  OnInit,
-  SimpleChanges,
-} from '@angular/core';
-import { ActivityInterface } from '../types/activity.interface';
+import { Component, Input, OnInit } from '@angular/core';
 import { ActivityStatusEnum } from '../types/enums/activity-status.enum';
-
-interface DayCell {
-  date: Date;
-  inMonth: boolean;
-  lines: (ActivityInterface | null)[];
-  hidden: ActivityInterface[];
-}
+import { DayCellInterface } from '../types/day-cell.interface';
 
 @Component({
   selector: 'app-date-cell',
@@ -21,7 +8,7 @@ interface DayCell {
   styleUrls: ['./date-cell.component.css'],
 })
 export class DateCellComponent implements OnInit {
-  @Input() day!: DayCell;
+  @Input() day!: DayCellInterface;
   isToday: boolean = false;
   showMore = false;
   ActivityStatusEnum = ActivityStatusEnum;

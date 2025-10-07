@@ -42,14 +42,17 @@ export class CalendarComponent implements OnInit {
   }
 
   onGoToday() {
-    this.today = new Date();
     this.month = this.today.getMonth();
     this.year = this.today.getFullYear();
     this.buildCalendar(this.year, this.month);
   }
 
-  private toDateOnly(d: Date) {
-    return new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  private buildCalendar(year: number, month: number) {
+    const dayCells = this.createDayCells(year, month);
+    const eventsInGrid = this.mapActivitiesToGrid(dayCells);
+    const { lines, overflow } = this.placeActivities(eventsInGrid);
+    this.fillDayCellsWithActivities(dayCells, lines, overflow);
+    this.weeks = this.splitIntoWeeks(dayCells);
   }
 
   private isoToDateOnly(iso: string): Date {
@@ -64,19 +67,13 @@ export class CalendarComponent implements OnInit {
     return Math.floor((utcB - utcA) / DAY_MS);
   }
 
-  private buildCalendar(year: number, month: number) {
-    const dayCells = this.createDayCells(year, month);
-    const eventsInGrid = this.mapActivitiesToGrid(dayCells);
-    const { lines, overflow } = this.placeActivities(eventsInGrid);
-    this.fillDayCellsWithActivities(dayCells, lines, overflow);
-    this.weeks = this.splitIntoWeeks(dayCells);
-  }
-
   private createDayCells(year: number, month: number): DayCellInterface[] {
     const firstOfMonth = new Date(year, month, 1);
     const startWeekday = firstOfMonth.getDay();
     const daysInMonth = new Date(year, month + 1, 0).getDate();
     const prevMonthLastDay = new Date(year, month, 0).getDate();
+    const totalDays = startWeekday + daysInMonth;
+    const totalCells = totalDays <= 28 ? 28 : totalDays <= 35 ? 35 : 42;
 
     const days: Date[] = [];
 
@@ -89,7 +86,7 @@ export class CalendarComponent implements OnInit {
     }
 
     let nextDay = 1;
-    while (days.length < 42) {
+    while (days.length < totalCells) {
       days.push(new Date(year, month + 1, nextDay++));
     }
 
@@ -103,19 +100,23 @@ export class CalendarComponent implements OnInit {
 
   private mapActivitiesToGrid(dayCells: DayCellInterface[]) {
     const allActivities = this.calendarService.getActivities();
-    const gridStart = this.toDateOnly(dayCells[0].date);
+    const gridStart = new Date(
+      dayCells[0].date.getFullYear(),
+      dayCells[0].date.getMonth(),
+      dayCells[0].date.getDate()
+    );
 
     const eventsInGrid = allActivities
-      .map((act) => {
+      .map((activity) => {
         const startIndex = this.dateDiffInDays(
           gridStart,
-          this.isoToDateOnly(act.startDate)
+          this.isoToDateOnly(activity.startDate)
         );
         const endIndex = this.dateDiffInDays(
           gridStart,
-          this.isoToDateOnly(act.endDate)
+          this.isoToDateOnly(activity.endDate)
         );
-        return { activity: act, startIndex, endIndex };
+        return { activity: activity, startIndex, endIndex };
       })
       .filter((ev) => ev.endIndex >= 0 && ev.startIndex <= 41);
 
@@ -163,26 +164,23 @@ export class CalendarComponent implements OnInit {
     lines: PlacedActivityInterface[][],
     overflow: PlacedActivityInterface[]
   ) {
-    for (let lineIndex = 0; lineIndex < lines.length; lineIndex++) {
-      const line = lines[lineIndex] || [];
-      for (const placed of line) {
-        const start = Math.max(0, placed.startIndex);
-        const end = Math.min(dayCells.length - 1, placed.endIndex);
-        for (let i = start; i <= end; i++) {
-          if (dayCells[i]) dayCells[i].lines[lineIndex] = placed.activity;
-        }
-      }
-    }
+    lines.flat().forEach(({ activity, startIndex, endIndex, viewLine }) => {
+      Array.from(
+        { length: endIndex - startIndex + 1 },
+        (_, i) => i + startIndex
+      )
+        .filter((i) => i >= 0 && i < dayCells.length)
+        .forEach((i) => (dayCells[i].lines[viewLine] = activity));
+    });
 
-    for (const overflowActivity of overflow) {
-      for (
-        let i = overflowActivity.startIndex;
-        i <= overflowActivity.endIndex;
-        i++
-      ) {
-        dayCells[i].hidden.push(overflowActivity.activity);
-      }
-    }
+    overflow.forEach(({ activity, startIndex, endIndex }) => {
+      Array.from(
+        { length: endIndex - startIndex + 1 },
+        (_, i) => i + startIndex
+      )
+        .filter((i) => i >= 0 && i < dayCells.length)
+        .forEach((i) => dayCells[i].hidden.push(activity));
+    });
   }
 
   private splitIntoWeeks(dayCells: DayCellInterface[]): DayCellInterface[][] {
