@@ -133,30 +133,35 @@ export class CalendarComponent implements OnInit {
       endIndex: number;
     }[]
   ) {
-    const lines: PlacedActivityInterface[][] = [];
-    const overflow: PlacedActivityInterface[] = [];
-    for (const ev of eventsInGrid) {
-      let placed = false;
-      for (let li = 0; li < lines.length; li++) {
-        const collision = lines[li].some(
-          (p) => !(ev.endIndex < p.startIndex || ev.startIndex > p.endIndex)
+    const MAX_LINES = 5;
+
+    return eventsInGrid.reduce(
+      (acc, ev) => {
+        const { lines, overflow } = acc;
+        const lineIndex = lines.findIndex(
+          (line) =>
+            !line.some(
+              (p) => !(ev.endIndex < p.startIndex || ev.startIndex > p.endIndex)
+            )
         );
-        if (!collision) {
-          lines[li].push({ ...ev, viewLine: li });
-          placed = true;
-          break;
-        }
-      }
-      if (!placed) {
-        if (lines.length < MAX_LINES) {
+        if (lineIndex !== -1) {
+          lines[lineIndex] = [
+            ...lines[lineIndex],
+            { ...ev, viewLine: lineIndex },
+          ];
+        } else if (lines.length < MAX_LINES) {
           const newLineIndex = lines.length;
           lines.push([{ ...ev, viewLine: newLineIndex }]);
         } else {
           overflow.push({ ...ev, viewLine: -1 });
         }
+        return acc;
+      },
+      {
+        lines: [] as PlacedActivityInterface[][],
+        overflow: [] as PlacedActivityInterface[],
       }
-    }
-    return { lines, overflow };
+    );
   }
 
   private fillDayCellsWithActivities(
