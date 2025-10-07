@@ -16,13 +16,14 @@
                 day.lines[li]?.status === ActivityStatusEnum.OnGoing,
               'bg-success':
                 day.lines[li]?.status === ActivityStatusEnum.Complete,
-                'border-start':day.lines[li]?.title!=='\u00A0'
+              'border-start': showTitleFlags[li]
             }"
             title="{{ day.lines[li]?.title }}"
           >
-            <span class="activity-title text-truncate"
-           >{{
-              day.lines[li]?.title
+            <span class="activity-title text-truncate">{{
+              day.lines[li] && showTitleFlags[li]
+                ? day.lines[li]?.title
+                : "\u00A0"
             }}</span>
           </div>
         </ng-container>

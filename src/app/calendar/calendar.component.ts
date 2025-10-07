@@ -133,7 +133,6 @@ export class CalendarComponent implements OnInit {
       endIndex: number;
     }[]
   ) {
-
     return eventsInGrid.reduce(
       (acc, ev) => {
         const { lines, overflow } = acc;
@@ -174,11 +173,7 @@ export class CalendarComponent implements OnInit {
         (_, i) => i + startIndex
       )
         .filter((i) => i >= 0 && i < dayCells.length)
-        .forEach(
-          (i) =>
-            (dayCells[i].lines[viewLine] =
-              i === startIndex ? activity : { ...activity, title: '\u00A0' })
-        );
+        .forEach((i) => (dayCells[i].lines[viewLine] = activity));
     });
 
     overflow.forEach(({ activity, startIndex, endIndex }) => {

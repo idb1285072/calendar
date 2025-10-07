@@ -12,9 +12,11 @@ export class DateCellComponent implements OnInit {
   isToday: boolean = false;
   showModal = false;
   ActivityStatusEnum = ActivityStatusEnum;
+  showTitleFlags: boolean[] = [];
 
   ngOnInit(): void {
     this.initIsToday();
+    this.computeShowTitleFlags();
   }
 
   openModal() {
@@ -31,5 +33,19 @@ export class DateCellComponent implements OnInit {
       this.day.date.getFullYear() === t.getFullYear() &&
       this.day.date.getMonth() === t.getMonth() &&
       this.day.date.getDate() === t.getDate();
+  }
+
+  private computeShowTitleFlags() {
+    this.showTitleFlags = this.day.lines.map((activity) => {
+      if (!activity) return false;
+      // Convert startDate string to Date once
+      const start = new Date(activity.startDate);
+      const dayDate = this.day.date;
+      return (
+        start.getFullYear() === dayDate.getFullYear() &&
+        start.getMonth() === dayDate.getMonth() &&
+        start.getDate() === dayDate.getDate()
+      );
+    });
   }
 }
