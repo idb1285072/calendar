@@ -5,7 +5,7 @@ import { DayCellInterface } from './types/day-cell.interface';
 import { PlacedActivityInterface } from './types/placed-activity.interface';
 
 const DAY_MS = 24 * 60 * 60 * 1000;
-const MAX_LINES = 4;
+const MAX_LINES = 3;
 
 @Component({
   selector: 'app-calendar',
