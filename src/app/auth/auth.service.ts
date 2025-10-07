@@ -4,17 +4,19 @@ import { BehaviorSubject } from 'rxjs';
 import { UserInterface } from './types/user.interface';
 import { USERS } from '../data/user.data';
 
+export interface SessionUser extends UserInterface {
+  expiry: number;
+}
+
 @Injectable({
   providedIn: 'root',
 })
 export class AuthService {
   private readonly USERS_KEY = 'saved-users';
   private readonly COOKIE_NAME = 'auth-user';
-  private readonly SESSION_DURATION = 30 * 60 * 1000;
+  private readonly SESSION_DURATION = 1 * 60 * 1000;
 
   private users: UserInterface[] = [];
-  private logoutTimer: any;
-
   private authStatus = new BehaviorSubject<UserInterface | null>(
     this.getCurrentUser()
   );
@@ -23,12 +25,6 @@ export class AuthService {
   constructor(private router: Router) {
     const savedUsers = localStorage.getItem(this.USERS_KEY);
     this.users = savedUsers ? JSON.parse(savedUsers) : USERS;
-
-    setInterval(() => {
-      if (!this.getCookie(this.COOKIE_NAME)) {
-        this.authStatus.next(null);
-      }
-    }, 1000);
   }
 
   login(username: string, password: string): boolean {
@@ -37,13 +33,11 @@ export class AuthService {
     );
     if (!user) return false;
 
-    this.setCookie(
-      this.COOKIE_NAME,
-      JSON.stringify(user),
-      this.SESSION_DURATION
-    );
+    const expiry = Date.now() + this.SESSION_DURATION;
+    const sessionUser: SessionUser = { ...user, expiry };
+    this.setCookie(this.COOKIE_NAME, JSON.stringify(sessionUser));
     this.authStatus.next(user);
-    this.startAutoLogout(this.SESSION_DURATION);
+
     return true;
   }
 
@@ -63,39 +57,45 @@ export class AuthService {
     return this.login(username, password);
   }
 
+  logout(): void {
+    this.deleteCookie(this.COOKIE_NAME);
+    this.authStatus.next(null);
+    this.router.navigate(['/login']);
+  }
+
+  isLoggedIn(): boolean {
+    return !!this.getCurrentUser();
+  }
+
   getCurrentUser(): UserInterface | null {
     const cookie = this.getCookie(this.COOKIE_NAME);
     if (!cookie) return null;
+
     try {
-      return JSON.parse(cookie);
+      const session = JSON.parse(cookie) as SessionUser;
+      if (Date.now() > session.expiry) {
+        this.logout();
+        return null;
+      }
+      const { expiry, ...user } = session;
+      return user;
     } catch {
       return null;
     }
   }
 
-  isLoggedIn(): boolean {
-    return this.getCookie(this.COOKIE_NAME) !== '';
+  refreshSession(): void {
+    const user = this.getCurrentUser();
+    if (!user) return;
+
+    const expiry = Date.now() + this.SESSION_DURATION;
+    const sessionUser: SessionUser = { ...user, expiry };
+    this.setCookie(this.COOKIE_NAME, JSON.stringify(sessionUser));
+    this.authStatus.next(user);
   }
 
-  logout(): void {
-    this.deleteCookie(this.COOKIE_NAME);
-    this.authStatus.next(null);
-
-    if (this.logoutTimer) {
-      clearTimeout(this.logoutTimer);
-      this.logoutTimer = null;
-    }
-
-    this.router.navigate(['/login']);
-  }
-
-  private startAutoLogout(duration: number) {
-    if (this.logoutTimer) clearTimeout(this.logoutTimer);
-    this.logoutTimer = setTimeout(() => this.logout(), duration);
-  }
-
-  private setCookie(name: string, value: string, durationMs: number) {
-    const expiryDate = new Date(Date.now() + durationMs);
+  private setCookie(name: string, value: string) {
+    const expiryDate = new Date(Date.now() + this.SESSION_DURATION);
     document.cookie = `${name}=${encodeURIComponent(
       value
     )}; expires=${expiryDate.toUTCString()}; path=/; SameSite=Lax`;
