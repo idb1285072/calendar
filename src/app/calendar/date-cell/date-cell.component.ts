@@ -38,7 +38,6 @@ export class DateCellComponent implements OnInit {
   private computeShowTitleFlags() {
     this.showTitleFlags = this.day.lines.map((activity) => {
       if (!activity) return false;
-      // Convert startDate string to Date once
       const start = new Date(activity.startDate);
       const dayDate = this.day.date;
       return (
